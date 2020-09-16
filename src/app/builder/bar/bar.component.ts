@@ -1,37 +1,46 @@
-import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import * as echarts from 'echarts';
 @Component({
   selector: 'app-bar',
   templateUrl: './bar.component.html',
-  styleUrls: ['./bar.component.css'],
+  styleUrls: ['./bar.component.css']
 })
 export class BarComponent implements OnInit {
-  options = {
-    xAxis: {
-      type: 'category',
-      data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    },
-    yAxis: {
-      type: 'value',
-    },
-    series: [
-      {
-        data: [120, 200, 150, 80, 70, 110, 130],
-        type: 'bar',
-        showBackground: true,
-        backgroundStyle: {
-          color: 'rgba(220, 220, 220, 0.8)',
-        },
-      },
-    ],
-  };
+  @ViewChild('bar', { static: true })
+  barEl: ElementRef;
+  @Input('type')
+  set options(type) {
+    if (type) {
+      this.initCharts(type);
+    }
+  }
   echarted;
-  ngOnInit(): void {
-    // this.initCharts();
+
+  constructor(private http: HttpClient) {}
+  ngOnInit(): void {}
+
+  async initCharts(type) {
+    let option;
+    switch (type) {
+      case 'media':
+        option = await this.getData(type);
+        break;
+      case 'person':
+        option = await this.getData1(type);
+        break;
+    }
+    if (this.echarted) {
+      this.echarted.clear();
+    }
+    this.echarted = echarts.init(this.barEl.nativeElement);
+    this.echarted.setOption(option);
   }
 
-  initCharts() {
-    this.echarted = echarts.init(document.getElementById('bar'));
-    this.echarted.setOption(this.options);
+  async getData(type) {
+    return await this.http.get('assets/mock.data.json').toPromise();
+  }
+  async getData1(type) {
+    return await this.http.get('assets/mock.data1.json').toPromise();
   }
 }

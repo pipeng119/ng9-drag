@@ -1,9 +1,10 @@
+import { HttpClient } from '@angular/common/http';
 import {
   Component,
   ComponentFactoryResolver,
   ViewChild,
   ViewContainerRef,
-  ViewEncapsulation,
+  ViewEncapsulation
 } from '@angular/core';
 import { BarComponent } from './bar/bar.component';
 import { PieComponent } from './pie/pie.component';
@@ -12,51 +13,62 @@ import { PieComponent } from './pie/pie.component';
   selector: 'app-builder',
   templateUrl: './builder.component.html',
   styleUrls: ['./builder.component.scss'],
-  encapsulation: ViewEncapsulation.None,
+  encapsulation: ViewEncapsulation.None
 })
 export class BuilderComponent {
+  barData;
+
   sourceBuilderTools = [
     {
-      name: 'Section',
+      name: 'pie',
       children: [] as any[],
       inputType: 'section',
       icon: 'far fa-square',
       class: 'wide',
-      container: 'pie',
-      tpl: () => {a:PieComponent},
+      chartsType: 'pie',
+      dataType: 'media'
     },
     {
-      name: 'String',
+      name: 'bar',
       inputType: 'string',
       icon: 'fas fa-language',
       class: 'half',
-      container: 'bar',
-      tpl: () => {a:BarComponent},
+      chartsType: 'bar',
+      dataType: 'person'
     },
     {
-      name: 'Number',
+      name: 'bar1',
       inputType: 'number',
       icon: 'fas fa-hashtag',
       class: 'half',
-      container: 'line',
-      tpl: () => {a:PieComponent},
-    },
+      chartsType: 'bar',
+      dataType: 'media'
+    }
   ];
   targetBuilderTools: any[] = [];
 
   droppableItemClass = (item: any) => `${item.class} ${item.inputType}`;
 
-  constructor(private componentFactoryResolver: ComponentFactoryResolver) {}
+  constructor(
+    private componentFactoryResolver: ComponentFactoryResolver,
+    private http: HttpClient
+  ) {}
 
   builderDrag(e: any) {
     const item = e.value;
     item.data =
       item.inputType === 'number'
         ? (Math.random() * 100) | 0
-        : Math.random().toString(36).substring(20);
+        : Math.random()
+            .toString(36)
+            .substring(20);
   }
 
-  log(e: any) {
+  async log(e: any) {
+    console.log(e.type, e);
+  }
+  cancel(e) {
+    console.log('cancel');
     console.log(e.type, e);
   }
 
@@ -66,15 +78,17 @@ export class BuilderComponent {
   @ViewChild('chartsContainer', { read: ViewContainerRef })
   chartsContainer: ViewContainerRef;
 
+  isShowPie: boolean = false;
+
   loadComponent($event) {
-    let component = $event.value.tpl().a;
-    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(
-      component
-    );
-    const componentRef = this.chartsContainer.createComponent<any>(
-      componentFactory,
-      null,
-      this.chartsContainer.injector
-    );
+    // let component = $event.value.tpl;
+    // const componentFactory = this.componentFactoryResolver.resolveComponentFactory(
+    //   component
+    // );
+    // const componentRef = this.chartsContainer.createComponent<any>(
+    //   componentFactory,
+    //   null,
+    //   this.chartsContainer.injector
+    // );
   }
 }
